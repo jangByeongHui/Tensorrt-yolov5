@@ -12,7 +12,7 @@ object를 detect를 할 때 높은 정확도로 detect하는 것을 확인 할 �
 
 # tensorrt
 pytorch를 사용한 것보다 detection이 떨어지는 모습이며, 엉뚱한 곳을 detect하는 경우도 발생한다. 그러나 175장의 사진을 연속적으로 detect하는데 1분 채 걸리지 않는 시간이 소요되었다.
-<img src="https://github.com/jangByeongHui/car_detect/blob/main/test_2.gif?raw=true">
+<img src="https://github.com/jangByeongHui/Tensorrt-yolov5/blob/main/Readme/test_3.gif?raw=true">
 
 
 ## yolov5s 모델을 tensorrt 사용 방법
