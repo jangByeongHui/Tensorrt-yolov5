@@ -7,11 +7,12 @@ Tensorrt는 FP32의 데이터를 FP16 혹은 INT 8의 데이터 타입으로 정
 ## pytorch
 object를 detect를 할 때 높은 정확도로 detect하는 것을 확인 할 수 있다. 그러나 다음과 결과를 얻기 위해서 175장의 사진에서 차량을 검출하기 위해 몇 십분의 시간이 소요되었다.
 
-<img src="https://github.com/jangByeongHui/car_detect/blob/main/ezgif.com-gif-maker.gif?raw=true">
+<img src="https://github.com/jangByeongHui/Tensorrt-yolov5/blob/main/Readme/test_2.gif?raw=true">
 
 
 # tensorrt
 pytorch를 사용한 것보다 detection이 떨어지는 모습이며, 엉뚱한 곳을 detect하는 경우도 발생한다. 그러나 175장의 사진을 연속적으로 detect하는데 1분 채 걸리지 않는 시간이 소요되었다.
+
 <img src="https://github.com/jangByeongHui/Tensorrt-yolov5/blob/main/Readme/test_3.gif?raw=true">
 
 
