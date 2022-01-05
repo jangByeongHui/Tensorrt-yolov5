@@ -386,7 +386,7 @@ int main(int argc, char** argv) {
     // prepare input data cache in device memory
     CUDA_CHECK(cudaMalloc((void**)&img_device, MAX_IMAGE_INPUT_SIZE_THRESH * 3));
     int fcount = 0;
-    // std::vector<cv::Mat> imgs_buffer(BATCH_SIZE);
+    std::vector<cv::Mat> imgs_buffer(BATCH_SIZE);
     // for (int f = 0; f < (int)file_names.size(); f++) {
     //     fcount++;
     //     if (fcount < BATCH_SIZE && f + 1 != (int)file_names.size()) continue;
@@ -429,7 +429,10 @@ int main(int argc, char** argv) {
     // }
     cv::VideoCapture video;
     video.open(img_dir);
-    
+    int test[100];
+    for(int i-0;i<100;i++){
+        test[i]=i+1;
+    }
     if(!video.isOpened())
     {
         std::cout << "open video file failed. " << std::endl;
@@ -445,45 +448,51 @@ int main(int argc, char** argv) {
             fcount++;
             if(fcount<BATCH_SIZE) continue;
             //auto start = std::chrono::system_clock::now();
-            
             float* buffer_idx = (float*)buffers[inputIndex];
             for (int b = 0; b < fcount; b++) {
-            cv::Mat img = frame;
-            if (img.empty()) continue;
-            imgs_buffer[b] = img;
-            size_t  size_image = img.cols * img.rows * 3;
-            size_t  size_image_dst = INPUT_H * INPUT_W * 3;
-            //copy data to pinned memory
-            memcpy(img_host,img.data,size_image);
-            //copy data to device memory
-            CUDA_CHECK(cudaMemcpyAsync(img_device,img_host,size_image,cudaMemcpyHostToDevice,stream));
-            preprocess_kernel_img(img_device, img.cols, img.rows, buffer_idx, INPUT_W, INPUT_H, stream);       
-            buffer_idx += size_image_dst;
-        }
-        // Run inference
-        auto start = std::chrono::system_clock::now();
-        doInference(*context, stream, (void**)buffers, prob, BATCH_SIZE);
-        auto end = std::chrono::system_clock::now();
-        std::cout << "inference time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
-        std::vector<std::vector<Yolo::Detection>> batch_res(fcount);
-        for (int b = 0; b < fcount; b++) {
-            auto& res = batch_res[b];
-            nms(res, &prob[b * OUTPUT_SIZE], CONF_THRESH, NMS_THRESH);
-        }
-        for (int b = 0; b < fcount; b++) {
-            auto& res = batch_res[b];
-            cv::Mat img = frame;
-            for (size_t j = 0; j < res.size(); j++) {
-                cv::Rect r = get_rect(img, res[j].bbox);
-                cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
-                cv::putText(img, std::to_string((int)res[j].class_id), cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+                cv::Mat img = frame;
+                if (img.empty()) continue;
+                imgs_buffer[b] = img;
+                size_t  size_image = img.cols * img.rows * 3;
+                size_t  size_image_dst = INPUT_H * INPUT_W * 3;
+                //copy data to pinned memory
+                memcpy(img_host,img.data,size_image);
+                //copy data to device memory
+                CUDA_CHECK(cudaMemcpyAsync(img_device,img_host,size_image,cudaMemcpyHostToDevice,stream));
+                preprocess_kernel_img(img_device, img.cols, img.rows, buffer_idx, INPUT_W, INPUT_H, stream);       
+                buffer_idx += size_image_dst;
             }
-            cv::imwrite("_" + file_names[f - fcount + 1 + b], img);
+            
+            // Run inference
+            auto start = std::chrono::system_clock::now();
+            doInference(*context, stream, (void**)buffers, prob, BATCH_SIZE);
+            auto end = std::chrono::system_clock::now();
+            std::cout << "inference time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << "ms" << std::endl;
+            std::vector<std::vector<Yolo::Detection>> batch_res(fcount);
+            for (int b = 0; b < fcount; b++) {
+                auto& res = batch_res[b];
+                nms(res, &prob[b * OUTPUT_SIZE], CONF_THRESH, NMS_THRESH);
+            }
+            for (int b = 0; b < fcount; b++) {
+                auto& res = batch_res[b];
+                cv::Mat img = frame;
+            
+                for (size_t j = 0; j < res.size(); j++) {
+                    cv::Rect r = get_rect(img, res[j].bbox);
+                    cv::rectangle(img, r, cv::Scalar(0x27, 0xC1, 0x36), 2);
+                    cv::putText(img, std::to_string((int)res[j].class_id), cv::Point(r.x, r.y - 1), cv::FONT_HERSHEY_PLAIN, 1.2, cv::Scalar(0xFF, 0xFF, 0xFF), 2);
+                }
+                cv::imwrite("_" + , img);
+            }
+            fcount = 0;
         }
-        fcount = 0;
+        if(cv::waitKey(1)>0){
+            break;
         }
-        
-
+        if(!frame.isContinuous()){
+            video.release();
+            break;
+        }
    } 
 
     // Release stream and buffers
