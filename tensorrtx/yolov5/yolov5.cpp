@@ -351,7 +351,7 @@ int main(int argc, char** argv) {
     if (read_files_in_dir(img_dir.c_str(), file_names) < 0) {
         Img_or_Video=0;
     } 
-    else if(img_dir.find("rtsp")==string::npos){
+    else if(img_dir.find("rtsp")==std:string::npos){
         Img_or_Video=1;
     }   
     else{
@@ -398,8 +398,10 @@ int main(int argc, char** argv) {
             float* buffer_idx = (float*)buffers[inputIndex];
             for (int b = 0; b < fcount; b++) {
                 // cv::Mat img = cv::imread(img_dir + "/" + file_names[f - fcount + 1 + b]);
-                cv::Ptr<CvCapture> capture=cvCaptureFromFile(img_dir);
-                cv::Mat img = cv::cvQueryFrame(capture);
+                cv::VideoCapture cap(img_dir);
+                cv::Mat img;
+                cap >> img;
+
                 if (img.empty()) continue;
                 imgs_buffer[b] = img;
                 size_t  size_image = img.cols * img.rows * 3;
