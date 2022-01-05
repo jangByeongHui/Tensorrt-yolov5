@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <cmath>
+#include <string>
 #include "cuda_utils.h"
 #include "logging.h"
 #include "common.hpp"
